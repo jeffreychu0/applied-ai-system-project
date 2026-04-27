@@ -1,7 +1,18 @@
 # -*- coding: utf-8 -*-
+import os
+from dotenv import load_dotenv
+load_dotenv()
+
 import streamlit as st
 from datetime import date, time
 from pawpal_system import Owner, Pet, Task, Scheduler
+
+try:
+    from openai import OpenAI as _OpenAI
+    from agent import run_agent_turn
+    _AGENT_AVAILABLE = True
+except ImportError:
+    _AGENT_AVAILABLE = False
 
 st.set_page_config(page_title="PawPal+", page_icon="🐾", layout="wide")
 st.title("🐾 PawPal+")
@@ -72,8 +83,8 @@ with st.sidebar:
 # ------------------------------------------------------------------
 # Tabs
 # ------------------------------------------------------------------
-tab_tasks, tab_schedule, tab_filter, tab_conflicts = st.tabs(
-    ["📋 Tasks", "📅 Schedule", "🔍 Filter & Sort", "⚠️ Conflicts"]
+tab_tasks, tab_schedule, tab_filter, tab_conflicts, tab_ai = st.tabs(
+    ["📋 Tasks", "📅 Schedule", "🔍 Filter & Sort", "⚠️ Conflicts", "🤖 AI Assistant"]
 )
 
 # ══════════════════════════════════════════════════════════════════
@@ -322,3 +333,70 @@ with tab_conflicts:
                 )
         else:
             st.info("No time-window overlaps (tasks need a scheduled time to be checked).")
+
+# ══════════════════════════════════════════════════════════════════
+# TAB 5 — AI Assistant
+# ══════════════════════════════════════════════════════════════════
+with tab_ai:
+    st.subheader("PawPal+ AI Assistant")
+    st.caption(
+        "Ask questions or give commands in plain English — the assistant "
+        "can read and modify your pets and tasks."
+    )
+
+    if not _AGENT_AVAILABLE:
+        st.error(
+            "The `openai` package is not installed. "
+            "Run `pip install openai` and restart the app."
+        )
+    else:
+        api_key = os.environ.get("OPENAI_API_KEY", "")
+        if not api_key:
+            st.warning(
+                "Set the `OPENAI_API_KEY` environment variable and restart "
+                "the app to enable the AI Assistant."
+            )
+        else:
+            # Chat state
+            if "chat_api_history" not in st.session_state:
+                st.session_state.chat_api_history = []
+            if "chat_display" not in st.session_state:
+                st.session_state.chat_display = []
+
+            # Render existing messages
+            for msg in st.session_state.chat_display:
+                with st.chat_message(msg["role"]):
+                    st.markdown(msg["content"])
+
+            # Accept new input
+            if prompt := st.chat_input("Ask something or give a command…"):
+                with st.chat_message("user"):
+                    st.markdown(prompt)
+                st.session_state.chat_display.append(
+                    {"role": "user", "content": prompt}
+                )
+
+                client = _OpenAI(api_key=api_key)
+                with st.chat_message("assistant"):
+                    with st.spinner(""):
+                        reply, new_history = run_agent_turn(
+                            prompt,
+                            st.session_state.chat_api_history,
+                            owner,
+                            client,
+                        )
+                    st.markdown(reply)
+
+                st.session_state.chat_api_history = new_history
+                st.session_state.chat_display.append(
+                    {"role": "assistant", "content": reply}
+                )
+                # Rerun so tabs 1-4 re-render with any owner mutations from tool calls.
+                st.rerun()
+
+            # Clear button — only shown when there is history
+            if st.session_state.chat_display:
+                if st.button("Clear chat", key="clear_chat"):
+                    st.session_state.chat_api_history = []
+                    st.session_state.chat_display = []
+                    st.rerun()
