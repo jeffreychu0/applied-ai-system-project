@@ -15,6 +15,10 @@ Teal — Domain Model (Session State, Scheduler, Conflict Detector)
 Grey — Output Layer
 Red/Brown — Testing & Human Evaluation (dashed lines)
 
+## Demo
+
+![PawPal+ demo](https://i.imgur.com/ocxoZaS.gif)
+
 ## Setup Instuctions
 
 1. Create venv and install:
@@ -68,3 +72,5 @@ The AI is really good at handling requests that I provide it, such as creating t
 ### describe your collaboration with AI during this project. Identify one instance when the AI gave a helpful suggestion and one instance where its suggestion was flawed or incorrect.
 
 While working on this project with AI, it had offered many helpful tips towards how I wanted to structure the application. Little things such as maintaining general flow while making a new tab for the AI chatbot were helpful. There were times when creating the agents where the AI failed to highlight key security practices such as using .env, where I had to steer it in the right direction and tell it to make my API keys and secrets in a .env
+
+## Walkthrough
