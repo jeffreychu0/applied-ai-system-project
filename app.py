@@ -213,8 +213,13 @@ with tab_schedule:
                 status   = "✅" if task.complete else "🔲"
                 time_str = (f" @{task.scheduled_time.strftime('%H:%M')}"
                             if task.scheduled_time else "")
+                pet_name = next(
+                    (p.name for p in owner.pets if any(t.id == task.id for t in p.tasks)),
+                    "?"
+                )
                 st.markdown(
                     f"{status} **{task.name}** &nbsp; "
+                    f"*{pet_name}* &nbsp; "
                     f"`priority {task.priority}` &nbsp; "
                     f"`{task.duration}h` &nbsp; "
                     f"`{task.frequency}`{time_str}"
