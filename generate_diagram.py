@@ -1,7 +1,7 @@
 """
 generate_diagram.py
 ===================
-Generates assets/system_architecture.png — a visual map of the PawPal+
+Generates assets/system_architecture.png — a visual map of the PawPal++
 system showing components, data flow, and the testing / human-evaluation layer.
 
 Run from the project root:
@@ -206,7 +206,7 @@ arrow(13.0, 1.55, 10.5, 8.08,  dashed=True, color=D, rad=-0.3, lbl='feedback', l
 # ─────────────────────────────────────────────────────────────────────────────
 # Title
 # ─────────────────────────────────────────────────────────────────────────────
-ax.text(10, 11.82, 'PawPal+  -  System Architecture',
+ax.text(10, 11.82, 'PawPal++  -  System Architecture',
         ha='center', va='center',
         fontsize=17, fontweight='bold', color='#1A237E')
 

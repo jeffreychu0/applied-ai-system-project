@@ -1,7 +1,7 @@
 """
 pawpal_system.py
 ================
-Core domain model for the PawPal+ pet care scheduling application.
+Core domain model for the PawPal++ pet care scheduling application.
 
 Classes:
     Task      -- A single pet care activity.
@@ -474,7 +474,7 @@ class Schedule:
 
 @dataclass
 class Scheduler:
-    """The 'Brain' of PawPal+.
+    """The 'Brain' of PawPal++.
 
     Sits on top of an ``Owner`` and provides unified, cross-pet task
     retrieval, filtering, and schedule generation. All state lives in
@@ -692,7 +692,7 @@ class Scheduler:
             str: A formatted string listing each pet, its tasks with
             status, and a total pending/total count at the end.
         """
-        lines = [f"=== PawPal+ Summary for {self.owner.name} ==="]
+        lines = [f"=== PawPal++ Summary for {self.owner.name} ==="]
         for pet in self.owner.pets:
             lines.append(f"  {pet}")
             for task in pet.tasks:

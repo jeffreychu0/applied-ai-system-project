@@ -14,8 +14,8 @@ try:
 except ImportError:
     _AGENT_AVAILABLE = False
 
-st.set_page_config(page_title="PawPal+", page_icon="🐾", layout="wide")
-st.title("🐾 PawPal+")
+st.set_page_config(page_title="PawPal++", page_icon="🐾", layout="wide")
+st.title("🐾 PawPal++")
 
 # ------------------------------------------------------------------
 # Session-state vault
@@ -343,7 +343,7 @@ with tab_conflicts:
 # TAB 5 — AI Assistant
 # ══════════════════════════════════════════════════════════════════
 with tab_ai:
-    st.subheader("PawPal+ AI Assistant")
+    st.subheader("PawPal++ AI Assistant")
     st.caption(
         "Ask questions or give commands in plain English — the assistant "
         "can read and modify your pets and tasks."

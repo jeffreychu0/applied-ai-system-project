@@ -1,131 +1,21 @@
-# Module 4 Submission: PawPal+ (Module 2 Project)
+# Module 4 Submission: PawPal++ (Module 2 Project)
 
-PawPal+ is a pet care scheduling tool implemented in Python, designed as a Streamlit app (entrypoint in `app.py`).
+PawPal++ is a pet care scheduling AI native tool implemented in Python, designed as a Streamlit app (entrypoint in `app.py`).
 It helps pet owners manage pets, tasks, and daily schedule generation with priority handling.
 
-<a href="final_app.png" target="_blank"><img src='final_app.png' title='PawPal App' width='' alt='PawPal App' class='center-block' /></a>.
+## Architecture Overview
 
-## ✅ Implemented features
+![alt text](assets/system_architecture.png)
 
-### Core domain objects (`pawpal_system.py`)
-- `Owner` with:
-  - `id: UUID`, `name: str`, `pets: List[Pet]`
-  - `add_pet(pet: Pet)`
-  - `get_pet(pet_id: UUID) -> Optional[Pet]`
-  - `find_pet_by_name(pet_name: str) -> Optional[Pet]`
-- `Pet` with:
-  - `id: UUID`, `name: str`, `age: int`, `tasks: List[Task]`
-  - `assign_task(task: Task)`
-  - `get_task(task_id: UUID) -> Optional[Task]`
-  - `complete_task(task_id: UUID) -> bool`
-  - `uncomplete_task(task_id: UUID) -> bool`
-  - `remove_task(task_id: UUID) -> bool`
-- `Task` with:
-  - `id: UUID`, `name: str`, `description: str`, `duration: float`, `priority: int`, `complete: bool`
-  - `mark_complete()` / `mark_incomplete()`
-  - `update(...)`
-- `Schedule` with:
-  - `day: date`, `task_list: List[Task]`
-  - `add_task(task: Task)`
-  - `remove_task(task_id: UUID) -> bool`
-  - `generate() -> List[Task]` (priority-based sorting)
-  - `clear()`
+Blue — User (input/output)
+Green — Streamlit Frontend (Manual Tabs + AI Chat)
+Orange — AI Agent (Agentic Loop + Tool Executor)
+Purple — OpenAI API
+Teal — Domain Model (Session State, Scheduler, Conflict Detector)
+Grey — Output Layer
+Red/Brown — Testing & Human Evaluation (dashed lines)
 
-### Task operations
-- Add/remove tasks by UUID for deterministic behavior (no duplicate name ambiguity)
-- Mark tasks complete/uncomplete
-- Update task details (name, description, duration, priority)
-
-### Schedule generation
-- Sort by uncompleted tasks first, then highest priority, then shorter duration
-- Provides a simple base plan for a given day
-
-## 🗺️ System Architecture
-
-```mermaid
-flowchart TD
-    USER([👤 User])
-
-    subgraph UI ["🖥️ Streamlit Frontend — app.py"]
-        MANUAL["Tasks / Schedule /\nFilter / Conflicts Tabs\n\nManual CRUD"]
-        CHATUI["🤖 AI Assistant Tab\nChat Interface"]
-    end
-
-    subgraph AGENT ["🤖 AI Agent — agent.py"]
-        LOOP["Agentic Loop\nrun_agent_turn()"]
-        EXEC["Tool Executor\nexecute_tool()"]
-    end
-
-    LLM[("☁️ OpenAI API\ngpt-4o-mini\nFunction Calling")]
-
-    subgraph DOMAIN ["📦 Domain Model — pawpal_system.py"]
-        STATE[("🗄️ Session State\nOwner · Pets · Tasks")]
-        SCHED["Scheduler\nbuild_schedule()"]
-        CONFLICT["Conflict Detector\ndetect_conflicts()"]
-    end
-
-    subgraph OUT ["📤 Output"]
-        VIEW["Schedule · Task List\nConflict Report"]
-        REPLY["AI Reply &\nAction Confirmation"]
-    end
-
-    subgraph TEST ["🧪 Testing & Human Evaluation"]
-        UT_DOM["test_pawpal.py\n47 Domain Unit Tests"]
-        UT_AGENT["test_agent.py\nTool Executor Tests"]
-        IT["Integration Tests\nLive API Calls"]
-        HUMAN_EVAL(["👤 Human Evaluator\nManual Validation"])
-    end
-
-    USER -->|"form input"| MANUAL
-    USER -->|"chat message"| CHATUI
-
-    MANUAL -->|"CRUD operations"| STATE
-    CHATUI -->|"message + history"| LOOP
-
-    LOOP -->|"system prompt + context"| LLM
-    LLM -->|"function calls"| EXEC
-    EXEC <-->|"reads / writes"| STATE
-    EXEC -->|"tool result string"| LLM
-    LLM -->|"final text reply"| LOOP
-
-    STATE --> SCHED --> VIEW
-    STATE --> CONFLICT --> VIEW
-    LOOP --> REPLY
-
-    VIEW --> USER
-    REPLY --> USER
-
-    STATE -..->|"domain tests"| UT_DOM
-    EXEC -..->|"tool tests"| UT_AGENT
-    LLM -..->|"end-to-end tests"| IT
-
-    UT_DOM & UT_AGENT & IT -..->|"pass / fail"| HUMAN_EVAL
-    HUMAN_EVAL -..->|"feedback loop"| LOOP
-```
-
-### Component summary
-
-| Component | File | Role |
-|---|---|---|
-| **Streamlit UI** | `app.py` | Input forms, tab views, chat interface |
-| **Domain Model** | `pawpal_system.py` | Owner / Pet / Task state; Scheduler; Conflict Detector |
-| **AI Agent** | `agent.py` | Agentic loop, system prompt builder, tool executor |
-| **OpenAI API** | *(external)* | LLM reasoning + function calling (gpt-4o-mini) |
-| **Domain Tests** | `tests/test_pawpal.py` | 47 unit tests covering core domain logic |
-| **Agent Tests** | `tests/test_agent.py` | Tool executor unit tests + live integration tests |
-| **Human Evaluator** | *(manual)* | Reviews AI replies and integration test results |
-
-## 📁 Project structure
-- `app.py` - Streamlit UI + interaction layer
-- `agent.py` - AI assistant agent (tool definitions, agentic loop)
-- `pawpal_system.py` - domain + scheduler logic
-- `tests/test_pawpal.py` - domain unit tests
-- `tests/test_agent.py` - agent unit + integration tests
-- `.env.example` - environment variable template
-- `reflection.md` - design reflection and notes
-- `requirements.txt` - dependencies
-
-## 🚀 Quickstart
+## Setup Instuctions
 
 1. Create venv and install:
 
@@ -147,24 +37,34 @@ cp .env.example .env   # then paste your OpenAI key into .env
 streamlit run app.py
 ```
 
-## 🧪 Testing
+## Sample Iterations
+![alt text](assets/ai_iteration_1-3.png)
+![alt text](assets/ai_iteration_results.png)
 
-Run domain + agent unit tests (no API key required):
+## Design Decisions
 
-```bash
-pytest tests/
-```
+While working on this project, I wanted to ensure that the regular flow of pawpal++ was still functional, while adding a new add-on that allows use of AI calls. By integrating AI calls directly into typical workflows, such as creating tasks, and being able to summarize the needs of the pets I have, I was able to maintain both the general flow and a specialized flow for pet management
 
-Run integration tests against the live OpenAI API:
+## Testing Summary
 
-```bash
-pytest tests/test_agent.py -m integration
-```
+10/10 passed — every agent capability verified (listing, creating, completing, removing tasks, adding pets, schedule, conflict detection, unknown pet handling, reset recurring)
+Average confidence: 7.2/10 (scored by a second model call rating each response)
+51 seconds total run time
 
-## 🛠️ Future enhancements
-- UI forms for task editing and deletion
-- persistence layer (JSON/SQLite)
-- constraints like maximum time block, availability windows
-- explanation text for why schedule order was chosen
-- multi-pet combined day planning
+## Reflection
 
+### What are the limitations or biases in your system?
+
+Personally, I believe the biggest limitation for this system is the granular control of modifiability the AI possesses. In order to let it access the different parts of my system, the different use cases need to be hard coded. AI output is also limited based on good human input and data
+
+### Could your AI be misused, and how would you prevent that?
+
+As it stands, the AI could currently be misused as there is no restriction in prompting. You could ask it anything and it would work. To prevent it, I would have to adjust my prompting so that it only responds to use requests with pets.
+
+### What surprised you while testing your AI's reliability?
+
+The AI is really good at handling requests that I provide it, such as creating tasks, summarizing tasks, etc
+
+### describe your collaboration with AI during this project. Identify one instance when the AI gave a helpful suggestion and one instance where its suggestion was flawed or incorrect.
+
+While working on this project with AI, it had offered many helpful tips towards how I wanted to structure the application. Little things such as maintaining general flow while making a new tab for the AI chatbot were helpful. There were times when creating the agents where the AI failed to highlight key security practices such as using .env, where I had to steer it in the right direction and tell it to make my API keys and secrets in a .env

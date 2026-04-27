@@ -6,3 +6,5 @@ __pycache__/
 
 # secrets — never commit the real .env
 .env
+.claude
+settings.local.json

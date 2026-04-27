@@ -1,16 +1,16 @@
 """
 test_agent.py
 =============
-Reliability tests for the PawPal+ AI assistant.
+Reliability tests for the PawPal++ AI assistant.
 
 Unit tests (no API key required — fast):
     pytest tests/test_agent.py
 
-Integration tests (require ANTHROPIC_API_KEY — calls live Claude API):
+Integration tests (require OPENAI_API_KEY — calls live OpenAI API):
     pytest tests/test_agent.py -m integration
 
 Unit tests cover every tool executor function directly.
-Integration tests send real prompts to Claude and verify the agent
+Integration tests send real prompts to the model and verify the agent
 calls the correct tools and produces sensible state mutations.
 """
 import os
@@ -18,10 +18,12 @@ import sys
 from datetime import date, time
 
 import pytest
+from dotenv import load_dotenv
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+load_dotenv(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), '.env'))
 
-from agent import FUNCTION_DECLARATIONS, TOOL_NAMES, execute_tool, run_agent_turn
+from agent import TOOLS, TOOL_NAMES, execute_tool, run_agent_turn
 from pawpal_system import Owner, Pet, Task
 
 
@@ -410,10 +412,11 @@ class TestUnknownTool:
 
 class TestToolDefinitions:
     def test_all_declarations_have_required_fields(self):
-        for fd in FUNCTION_DECLARATIONS:
-            assert fd.name, f"FunctionDeclaration missing name: {fd}"
-            assert fd.description, f"FunctionDeclaration missing description: {fd}"
-            assert fd.parameters is not None, f"FunctionDeclaration missing parameters: {fd}"
+        for tool in TOOLS:
+            fn = tool["function"]
+            assert fn.get("name"), f"Tool missing name: {tool}"
+            assert fn.get("description"), f"Tool missing description: {tool}"
+            assert fn.get("parameters", {}).get("type") == "object", f"Tool missing object parameters: {tool}"
 
     def test_tool_names_are_unique(self):
         assert len(TOOL_NAMES) == len(set(TOOL_NAMES)), "Duplicate tool names found"

@@ -1,7 +1,7 @@
 """
 main.py
 =======
-PawPal+ demo: one owner, two pets, three tasks each.
+PawPal++ demo: one owner, two pets, three tasks each.
 Exercises every feature in pawpal_system.py.
 """
 from datetime import date, time

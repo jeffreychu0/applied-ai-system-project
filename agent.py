@@ -1,7 +1,7 @@
 """
 agent.py
 ========
-PawPal+ AI assistant — OpenAI-powered chat agent with tool use.
+PawPal++ AI assistant — OpenAI-powered chat agent with tool use.
 
 The agent has read/write access to the owner's live pet data through
 a set of named tools. `run_agent_turn` drives the agentic loop: it
@@ -366,7 +366,7 @@ def execute_tool(name: str, inputs: dict, owner: Owner) -> str:
 # ---------------------------------------------------------------------------
 
 _SYSTEM = """\
-You are PawPal+, an AI assistant built into a pet care scheduling app.
+You are PawPal++, an AI assistant built into a pet care scheduling app.
 You have live access to the owner's pet data through tools. Use tools \
 proactively to read current state before answering questions about pets or tasks.
 
